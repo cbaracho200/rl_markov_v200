@@ -1,1 +1,1 @@
-# Previs-o-ciclos-Econ-mico
+# Previsao-ciclos-Economico
