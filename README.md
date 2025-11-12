@@ -2,7 +2,8 @@
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Models](https://img.shields.io/badge/models-8-green.svg)](src/models/)
+[![Models](https://img.shields.io/badge/models-11-green.svg)](src/models/)
+[![Validation](https://img.shields.io/badge/validation-Granger%20%2B%20Stationarity-blue.svg)](src/validation/)
 [![Optimization](https://img.shields.io/badge/optimization-Optuna-orange.svg)](src/optimization/)
 
 **Framework avançado de Reinforcement Learning de nível PhD que combina modelos state-of-the-art com otimização automática de hiperparâmetros para prever séries temporais econômicas com antecedência de 6 a 12 meses.**
@@ -12,6 +13,14 @@
 ## 🎯 Visão Geral
 
 Este framework combina o poder do **Reinforcement Learning (RL)** com **8 modelos supervisionados** (básicos e avançados) e **otimização automática de hiperparâmetros** para criar um sistema de previsão de séries temporais altamente adaptativo e preciso.
+
+### ⭐ Novidades (v2.1)
+
+- ✅ **Validação de Variáveis**: Testes de estacionaridade (ADF, KPSS, Phillips-Perron)
+- ✅ **Causalidade de Granger**: Seleção automática de preditores com relações causais
+- ✅ **3 Modelos Avançados**: SARIMA, SARIMAX (com exógenas), VAR (multivariado)
+- ✅ **Pipeline Integrado**: Validação completa em 4 etapas automatizadas
+- ✅ **Exemplo Completo**: Pipeline de validação + modelagem avançada
 
 ### ⭐ Novidades (v2.0)
 
@@ -808,19 +817,26 @@ python examples/advanced_models_example.py
    - Como executar os exemplos
    - Troubleshooting
 
-2. **[ADVANCED_MODELS.md](ADVANCED_MODELS.md)** - Modelos Avançados
+2. **[VALIDATION_GUIDE.md](VALIDATION_GUIDE.md)** - ⭐ **NOVO** Validação de Variáveis (PhD+)
+   - Testes de estacionaridade (ADF, KPSS, Phillips-Perron)
+   - Testes de causalidade de Granger
+   - Pipeline integrado de validação
+   - Modelos SARIMA, SARIMAX, VAR
+   - Exemplos completos
+
+3. **[ADVANCED_MODELS.md](ADVANCED_MODELS.md)** - Modelos Avançados
    - Guia completo de cada modelo
    - Quando usar cada um
    - Exemplos de código
    - Comparações
 
-3. **[ADVANCED_FEATURES.md](ADVANCED_FEATURES.md)** - Agente RL Avançado
+4. **[ADVANCED_FEATURES.md](ADVANCED_FEATURES.md)** - Agente RL Avançado
    - Transformer-based Actor-Critic
    - Todas as 15 técnicas PhD
    - Comparação Standard vs Advanced
    - Referências acadêmicas
 
-4. **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Soluções
+5. **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Soluções
    - 10 erros comuns com soluções
    - Checklist de debug
    - Dicas de performance
