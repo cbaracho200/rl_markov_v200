@@ -142,7 +142,7 @@ class ARIMAPredictor(BasePredictor):
                 for q in range(max_q + 1):
                     try:
                         model = ARIMA(data, order=(p, d, q))
-                        fitted = model.fit(disp=False)
+                        fitted = model.fit()
                         if fitted.aic < best_aic:
                             best_aic = fitted.aic
                             best_order = (p, d, q)
