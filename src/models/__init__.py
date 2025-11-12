@@ -5,10 +5,21 @@ from .lstm_model import LSTMPredictor
 from .xgboost_model import XGBoostPredictor
 from .ensemble_predictor import EnsemblePredictor
 
+# Modelos Avançados (Nível PhD)
+from .autoarima_model import AutoARIMAPredictor
+from .prophet_model import ProphetPredictor
+from .catboost_model import CatBoostPredictor
+from .lightgbm_model import LightGBMPredictor
+
 __all__ = [
     'BasePredictor',
     'ARIMAPredictor',
     'LSTMPredictor',
     'XGBoostPredictor',
-    'EnsemblePredictor'
+    'EnsemblePredictor',
+    # Avançados
+    'AutoARIMAPredictor',
+    'ProphetPredictor',
+    'CatBoostPredictor',
+    'LightGBMPredictor'
 ]
