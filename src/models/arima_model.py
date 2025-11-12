@@ -70,7 +70,7 @@ class ARIMAPredictor(BasePredictor):
                     **kwargs
                 )
 
-            self.fitted_model = self.model.fit(disp=False)
+            self.fitted_model = self.model.fit()
             self.is_fitted = True
 
         except Exception as e:
@@ -79,7 +79,7 @@ class ARIMAPredictor(BasePredictor):
             try:
                 self.order = (1, 1, 1)
                 self.model = ARIMA(data, order=self.order)
-                self.fitted_model = self.model.fit(disp=False)
+                self.fitted_model = self.model.fit()
                 self.is_fitted = True
             except:
                 self.is_fitted = False
