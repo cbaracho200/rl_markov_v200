@@ -65,8 +65,8 @@ Este framework combina o poder do **Reinforcement Learning (RL)** com **modelos 
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/Previsao-ciclos-Economico.git
-cd Previsao-ciclos-Economico
+git clone https://github.com/cbaracho200/rl_markov_v200.git
+cd rl_markov_v200
 
 # Instale dependências
 pip install -r requirements.txt
