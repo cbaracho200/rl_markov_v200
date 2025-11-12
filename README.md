@@ -117,16 +117,8 @@ Este framework combina o poder do **Reinforcement Learning (RL)** com **8 modelo
 
 ### Instalação Rápida
 
-```bash
-# 1. Clone o repositório
-git clone https://github.com/cbaracho200/Previs-o-ciclos-Econ-mico.git
-cd Previs-o-ciclos-Econ-mico
 
-# 2. Instale dependências básicas
-pip install numpy pandas matplotlib torch gymnasium statsmodels xgboost scikit-learn tqdm
 
-# 3. (Opcional) Instale modelos avançados
-pip install prophet catboost lightgbm pmdarima optuna plotly
 
 # OU instale tudo de uma vez
 pip install -r requirements.txt
