@@ -16,9 +16,12 @@ gymnasium>=0.29.0
 # Time Series Models
 statsmodels>=0.14.0
 pmdarima>=2.0.0
+prophet>=1.1.0          # Facebook's forecasting model (PhD)
 
 # Gradient Boosting
 xgboost>=1.7.0
+catboost>=1.2.0         # Advanced gradient boosting (PhD)
+lightgbm>=4.0.0         # Ultra-fast gradient boosting (PhD)
 scikit-learn>=1.0.0
 
 # Visualization
@@ -28,6 +31,9 @@ plotly>=5.0.0
 
 # Progress Bars
 tqdm>=4.65.0
+
+# Hyperparameter Optimization (PhD)
+optuna>=3.0.0           # Bayesian optimization framework
 
 # Utilities
 python-dateutil>=2.8.0
