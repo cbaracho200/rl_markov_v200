@@ -11,6 +11,11 @@ from .prophet_model import ProphetPredictor
 from .catboost_model import CatBoostPredictor
 from .lightgbm_model import LightGBMPredictor
 
+# Modelos Avançados com Validação de Variáveis (Nível PhD+)
+from .sarima_model import SARIMAPredictor
+from .sarimax_model import SARIMAXPredictor
+from .var_model import VARPredictor
+
 __all__ = [
     'BasePredictor',
     'ARIMAPredictor',
@@ -21,5 +26,9 @@ __all__ = [
     'AutoARIMAPredictor',
     'ProphetPredictor',
     'CatBoostPredictor',
-    'LightGBMPredictor'
+    'LightGBMPredictor',
+    # Avançados com validação
+    'SARIMAPredictor',
+    'SARIMAXPredictor',
+    'VARPredictor'
 ]
