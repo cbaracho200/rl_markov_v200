@@ -224,8 +224,8 @@ class RLAgent:
         if not deterministic:
             self.states.append(state)
             self.actions.append(action.cpu().numpy()[0])
-            self.log_probs.append(log_prob.cpu().numpy()[0])
-            self.values.append(value.cpu().numpy()[0])
+            self.log_probs.append(float(log_prob.cpu().numpy()))
+            self.values.append(float(value.cpu().numpy().squeeze()))
 
         return action.cpu().numpy()[0]
 
@@ -292,7 +292,7 @@ class RLAgent:
         next_state_tensor = torch.FloatTensor(next_state).unsqueeze(0).to(self.device)
         with torch.no_grad():
             _, next_value = self.policy.forward(next_state_tensor)
-            next_value = next_value.cpu().numpy()[0, 0]
+            next_value = float(next_value.cpu().numpy().squeeze())
 
         # Calcula advantages e returns
         advantages, returns = self.compute_gae(next_value)
