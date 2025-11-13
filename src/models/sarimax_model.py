@@ -57,7 +57,7 @@ class SARIMAXPredictor(BasePredictor):
                  trend: Optional[str] = None,
                  enforce_stationarity: bool = True,
                  enforce_invertibility: bool = True,
-                 **kwargs):
+                 name: str = "SARIMAX"):
         """
         Inicializa o modelo SARIMAX.
 
@@ -68,8 +68,9 @@ class SARIMAXPredictor(BasePredictor):
             trend: Componente de tendência ('c', 't', 'ct', ou None)
             enforce_stationarity: Se True, garante estacionaridade
             enforce_invertibility: Se True, garante invertibilidade
+            name: Nome do modelo
         """
-        super().__init__(**kwargs)
+        super().__init__(name)
 
         self.order = order
         self.seasonal_order = seasonal_order
@@ -160,7 +161,7 @@ class SARIMAXPredictor(BasePredictor):
             # Fit
             self.fitted_model = self.model.fit()
 
-            self.is_trained = True
+            self.is_fitted = True
 
             # Armazenar informações do modelo
             self.model_info = {
@@ -193,7 +194,7 @@ class SARIMAXPredictor(BasePredictor):
         Returns:
             Array com previsões
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -240,6 +241,23 @@ class SARIMAXPredictor(BasePredictor):
         except Exception as e:
             raise RuntimeError(f"Erro na previsão SARIMAX: {str(e)}")
 
+    def forecast(self, data: Union[np.ndarray, pd.Series], horizon: int) -> np.ndarray:
+        """
+        Treina o modelo e faz previsão em uma única chamada (sem variáveis exógenas).
+
+        NOTA: Este método não usa variáveis exógenas. Para usar exógenas,
+        chame fit() e predict() separadamente.
+
+        Args:
+            data: Dados históricos para treinamento
+            horizon: Horizonte de previsão (número de períodos à frente)
+
+        Returns:
+            Array com previsões
+        """
+        self.fit(data, exog=None)
+        return self.predict(steps=horizon, exog=None)
+
     def predict_with_intervals(self,
                                 steps: int = 1,
                                 exog: Optional[Union[np.ndarray, pd.DataFrame]] = None,
@@ -255,7 +273,7 @@ class SARIMAXPredictor(BasePredictor):
         Returns:
             Dicionário com 'mean', 'lower', 'upper'
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -295,7 +313,7 @@ class SARIMAXPredictor(BasePredictor):
         Returns:
             Dicionário {nome_variavel: coeficiente}
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         if not self.exog_names:
@@ -316,7 +334,7 @@ class SARIMAXPredictor(BasePredictor):
         Returns:
             String com sumário detalhado
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return str(self.fitted_model.summary())
@@ -328,7 +346,7 @@ class SARIMAXPredictor(BasePredictor):
         Returns:
             Dicionário com AIC, BIC, HQIC
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return {
@@ -344,7 +362,7 @@ class SARIMAXPredictor(BasePredictor):
 
         Requer matplotlib.
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:

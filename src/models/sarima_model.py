@@ -56,7 +56,7 @@ class SARIMAPredictor(BasePredictor):
                  trend: Optional[str] = None,
                  enforce_stationarity: bool = True,
                  enforce_invertibility: bool = True,
-                 **kwargs):
+                 name: str = "SARIMA"):
         """
         Inicializa o modelo SARIMA.
 
@@ -77,8 +77,9 @@ class SARIMAPredictor(BasePredictor):
                 - 'ct': constante + linear
             enforce_stationarity: Se True, garante estacionaridade
             enforce_invertibility: Se True, garante invertibilidade
+            name: Nome do modelo
         """
-        super().__init__(**kwargs)
+        super().__init__(name)
 
         self.order = order
         self.seasonal_order = seasonal_order
@@ -143,7 +144,7 @@ class SARIMAPredictor(BasePredictor):
             # Fit (sem usar disp que foi deprecado)
             self.fitted_model = self.model.fit()
 
-            self.is_trained = True
+            self.is_fitted = True
 
             # Armazenar informações do modelo
             self.model_info = {
@@ -169,7 +170,7 @@ class SARIMAPredictor(BasePredictor):
         Returns:
             Array com previsões
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -185,6 +186,20 @@ class SARIMAPredictor(BasePredictor):
         except Exception as e:
             raise RuntimeError(f"Erro na previsão SARIMA: {str(e)}")
 
+    def forecast(self, data: Union[np.ndarray, pd.Series], horizon: int) -> np.ndarray:
+        """
+        Treina o modelo e faz previsão em uma única chamada.
+
+        Args:
+            data: Dados históricos para treinamento
+            horizon: Horizonte de previsão (número de períodos à frente)
+
+        Returns:
+            Array com previsões
+        """
+        self.fit(data)
+        return self.predict(steps=horizon)
+
     def predict_with_intervals(self,
                                 steps: int = 1,
                                 alpha: float = 0.05) -> Dict[str, np.ndarray]:
@@ -198,7 +213,7 @@ class SARIMAPredictor(BasePredictor):
         Returns:
             Dicionário com 'mean', 'lower', 'upper'
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -225,7 +240,7 @@ class SARIMAPredictor(BasePredictor):
         Returns:
             Array com valores ajustados
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return self.fitted_model.fittedvalues.values
@@ -237,7 +252,7 @@ class SARIMAPredictor(BasePredictor):
         Returns:
             Array com resíduos
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return self.fitted_model.resid.values
@@ -249,7 +264,7 @@ class SARIMAPredictor(BasePredictor):
         Returns:
             String com sumário detalhado
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return str(self.fitted_model.summary())
@@ -261,7 +276,7 @@ class SARIMAPredictor(BasePredictor):
         Returns:
             Dicionário com AIC, BIC, HQIC
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return {
@@ -277,7 +292,7 @@ class SARIMAPredictor(BasePredictor):
 
         Requer matplotlib.
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:

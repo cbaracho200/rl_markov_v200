@@ -57,7 +57,7 @@ class VARPredictor(BasePredictor):
                  maxlags: Optional[int] = None,
                  ic: str = 'aic',
                  trend: str = 'c',
-                 **kwargs):
+                 name: str = "VAR"):
         """
         Inicializa o modelo VAR.
 
@@ -73,8 +73,9 @@ class VARPredictor(BasePredictor):
                 - 'ct': constante + tendência linear
                 - 'ctt': constante + tendência linear + quadrática
                 - 'n': sem termo de tendência
+            name: Nome do modelo
         """
-        super().__init__(**kwargs)
+        super().__init__(name)
 
         self.maxlags = maxlags
         self.ic = ic
@@ -130,7 +131,7 @@ class VARPredictor(BasePredictor):
             # Treinar modelo
             self.fitted_model = self.model.fit(maxlags=self.selected_lag, trend=self.trend)
 
-            self.is_trained = True
+            self.is_fitted = True
 
             # Armazenar informações do modelo
             self.model_info = {
@@ -159,7 +160,7 @@ class VARPredictor(BasePredictor):
             Array com previsões para todas as variáveis
             Shape: (steps, n_variables)
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -174,6 +175,21 @@ class VARPredictor(BasePredictor):
 
         except Exception as e:
             raise RuntimeError(f"Erro na previsão VAR: {str(e)}")
+
+    def forecast(self, data: Union[np.ndarray, pd.DataFrame], horizon: int) -> np.ndarray:
+        """
+        Treina o modelo e faz previsão em uma única chamada.
+
+        Args:
+            data: Dados históricos para treinamento (múltiplas variáveis)
+            horizon: Horizonte de previsão (número de períodos à frente)
+
+        Returns:
+            Array com previsões para todas as variáveis
+            Shape: (horizon, n_variables)
+        """
+        self.fit(data)
+        return self.predict(steps=horizon)
 
     def predict_single_variable(self,
                                  variable_name: str,
@@ -210,7 +226,7 @@ class VARPredictor(BasePredictor):
         Returns:
             DataFrame matriz onde [i,j] = p-value do teste "i causa j"
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         if maxlag is None:
@@ -262,7 +278,7 @@ class VARPredictor(BasePredictor):
         Returns:
             Array com IRF
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -291,7 +307,7 @@ class VARPredictor(BasePredictor):
             response: Variável cuja resposta é medida (None = todas)
             periods: Número de períodos
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -323,7 +339,7 @@ class VARPredictor(BasePredictor):
         Returns:
             Dicionário {variável: DataFrame com decomposição}
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         try:
@@ -350,7 +366,7 @@ class VARPredictor(BasePredictor):
         Returns:
             String com sumário detalhado
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return str(self.fitted_model.summary())
@@ -362,7 +378,7 @@ class VARPredictor(BasePredictor):
         Returns:
             Dicionário com AIC, BIC, HQIC, FPE
         """
-        if not self.is_trained:
+        if not self.is_fitted:
             raise ValueError("Modelo não foi treinado. Execute fit() primeiro.")
 
         return {
