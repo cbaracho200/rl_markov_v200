@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 from typing import Union, Dict, Optional, Tuple
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from ..base_model import BasePredictor
+from .base_model import BasePredictor
 import warnings
 
 warnings.filterwarnings('ignore')
