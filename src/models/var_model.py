@@ -35,7 +35,7 @@ import pandas as pd
 from typing import Union, Dict, Optional, List, Tuple
 from statsmodels.tsa.api import VAR as VAR_Model
 from statsmodels.tsa.vector_ar.var_model import VARResults
-from ..base_predictor import BasePredictor
+from ..base_model import BasePredictor
 import warnings
 
 warnings.filterwarnings('ignore')
