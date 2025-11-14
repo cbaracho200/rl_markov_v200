@@ -61,13 +61,7 @@ class Config:
 
     # Variáveis
     TARGET_VAR = 'pib_acum12m'
-    EXOG_VARS = [
-        'ibc_br', 'ind_transformacao_cni', 'vendas_varejo_total',
-        'vendas_varejo_ampliado', 'servicos_total', 'receita_real_trib_federal',
-        'massa_real_habitual', 'taxa_desemp_sa', 'caged_saldo', 'pop_ocupada_total',
-        'inpc', 'ipca', 'igp_m', 'igp_di', 'spread_c_pesoadic',
-        'pessoa_fisica_pf', 'pessoa_juridica_pj', 'total_geral_cred'
-    ]  # Lista reduzida para velocidade
+    EXOG_VARS = None  # Será detectado automaticamente do dataset
 
     # Dados
     TRAIN_RATIO = 0.70
@@ -94,11 +88,49 @@ config = Config()
 
 
 # ============================================================================
+# DETECÇÃO AUTOMÁTICA DE VARIÁVEIS
+# ============================================================================
+
+def detect_exogenous_variables(data: pd.DataFrame, target_var: str) -> List[str]:
+    """
+    Detecta automaticamente variáveis exógenas do dataset.
+
+    Args:
+        data: DataFrame com os dados
+        target_var: Nome da variável alvo
+
+    Returns:
+        Lista de nomes de variáveis exógenas
+    """
+    all_columns = data.columns.tolist()
+    exog_vars = [col for col in all_columns if col != target_var]
+
+    print(f"\n✓ Detecção automática de variáveis:")
+    print(f"  Total: {len(all_columns)} colunas")
+    print(f"  Target: {target_var}")
+    print(f"  Exógenas: {len(exog_vars)} variáveis")
+
+    return exog_vars
+
+
+# ============================================================================
 # GERAÇÃO DE DADOS
 # ============================================================================
 
-def generate_synthetic_pib_data(n_obs: int = 300) -> pd.DataFrame:
-    """Gera dados sintéticos."""
+def generate_synthetic_pib_data(n_obs: int = 300, n_exog: int = 20) -> pd.DataFrame:
+    """
+    Gera dados sintéticos.
+
+    IMPORTANTE: Em produção, substitua por dados reais:
+    >>> data = pd.read_csv('seus_dados_pib.csv', parse_dates=['data'], index_col='data')
+
+    Args:
+        n_obs: Número de observações
+        n_exog: Número de variáveis exógenas (reduzido para velocidade do RL)
+
+    Returns:
+        DataFrame com os dados
+    """
     np.random.seed(config.RANDOM_SEED)
 
     dates = pd.date_range(end='2024-01-01', periods=n_obs, freq='M')
@@ -116,7 +148,8 @@ def generate_synthetic_pib_data(n_obs: int = 300) -> pd.DataFrame:
     data[config.TARGET_VAR] = pib
 
     # Variáveis exógenas
-    for i, var_name in enumerate(config.EXOG_VARS):
+    for i in range(n_exog):
+        var_name = f'exog_var_{i+1:03d}'
         correlation = np.random.uniform(0.4, 0.9)
         correlated = correlation * pib
         independent = (1 - correlation) * (
@@ -470,6 +503,9 @@ def main():
     print("-" * 80)
 
     data = generate_synthetic_pib_data(n_obs=300)
+
+    # Detecta variáveis exógenas automaticamente
+    config.EXOG_VARS = detect_exogenous_variables(data, config.TARGET_VAR)
 
     # Divisão
     n = len(data)
