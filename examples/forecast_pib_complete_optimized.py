@@ -57,31 +57,7 @@ class Config:
 
     # Variáveis
     TARGET_VAR = 'pib_acum12m'
-    EXOG_VARS = [
-        'ibc_br', 'ind_transformacao_cni', 'vendas_varejo_total',
-        'vendas_varejo_ampliado', 'servicos_total', 'receita_real_trib_federal',
-        'massa_real_habitual', 'taxa_desemp_sa', 'caged_saldo', 'pop_ocupada_total',
-        'inpc', 'ipca', 'igp_m', 'igp_di', 'spread_c_pesoadic',
-        'pessoa_fisica_pf', 'pessoa_juridica_pj', 'total_geral_cred',
-        'cred_recursos_livres_pf', 'cred_recursos_direcionados_pf',
-        'cred_recursos_livres_pj', 'cred_recursos_direcionados_pj',
-        'tx_juros_recursos_livres_pf', 'tx_juros_recursos_direcionados_pf',
-        'tx_juros_recursos_livres_pj', 'tx_juros_recursos_direcionados_pj',
-        'tx_juros_pesoadic_media_pf', 'tx_juros_pesoadic_media_pj',
-        'emp_concessoes', 'emp_saldo', 'ici', 'incc_nacional',
-        'exp_geral', 'imp_geral', 'saldo_balanca_comercial', 'term_troca',
-        'fbcf', 'consumo_familias', 'cons_governo', 'exportacao',
-        'importacao', 'agropecuaria', 'industria', 'servicos_pib',
-        'taxa_selic', 'taxa_cambio_livre_dolar_venda', 'reservas_internacionais',
-        'm1_fim_periodo', 'm2_fim_periodo', 'm3_fim_periodo', 'm4_fim_periodo',
-        'divida_liquida_setor_publico_pib', 'resultado_primario_governo_central',
-        'resultado_nominal_governo_central', 'producao_industrial_geral',
-        'producao_industrial_transformacao', 'utilizacao_capacidade_instalada',
-        'horas_trab_pagas_ind', 'folha_real_salario_ind', 'confianca_empresarial_fgv',
-        'confianca_consumidor_fgv', 'idx_atividade_economica_bc', 'idx_commodities_bc',
-        'bovespa_fechamento', 'risco_pais_embi', 'vendas_veiculos', 'producao_veiculos',
-        'preco_petroleo_brent', 'preco_minerio_ferro'
-    ]
+    EXOG_VARS = None  # Será detectado automaticamente do dataset
 
     # Divisão dos dados
     TRAIN_RATIO = 0.65
@@ -108,18 +84,54 @@ config = Config()
 
 
 # ============================================================================
+# DETECÇÃO AUTOMÁTICA DE VARIÁVEIS
+# ============================================================================
+
+def detect_exogenous_variables(data: pd.DataFrame, target_var: str) -> List[str]:
+    """
+    Detecta automaticamente variáveis exógenas do dataset.
+
+    Usa todas as colunas exceto o target como variáveis exógenas.
+
+    Args:
+        data: DataFrame com os dados
+        target_var: Nome da variável alvo
+
+    Returns:
+        Lista de nomes de variáveis exógenas
+    """
+    all_columns = data.columns.tolist()
+
+    # Remove target
+    exog_vars = [col for col in all_columns if col != target_var]
+
+    print(f"\n✓ Detecção automática de variáveis:")
+    print(f"  Total de colunas: {len(all_columns)}")
+    print(f"  Target: {target_var}")
+    print(f"  Variáveis exógenas detectadas: {len(exog_vars)}")
+
+    if len(exog_vars) > 10:
+        print(f"  Primeiras 10: {exog_vars[:10]}")
+    else:
+        print(f"  Todas: {exog_vars}")
+
+    return exog_vars
+
+
+# ============================================================================
 # GERAÇÃO DE DADOS SINTÉTICOS
 # ============================================================================
 
-def generate_synthetic_pib_data(n_obs: int = 300) -> pd.DataFrame:
+def generate_synthetic_pib_data(n_obs: int = 300, n_exog: int = 68) -> pd.DataFrame:
     """
-    Gera dados sintéticos realistas para PIB e 68 variáveis exógenas.
+    Gera dados sintéticos realistas para PIB e variáveis exógenas.
 
     IMPORTANTE: Em produção, substitua por dados reais:
     >>> data = pd.read_csv('seus_dados_pib.csv', parse_dates=['data'], index_col='data')
 
     Args:
         n_obs: Número de observações
+        n_exog: Número de variáveis exógenas a gerar
 
     Returns:
         DataFrame com todas as variáveis
@@ -143,7 +155,9 @@ def generate_synthetic_pib_data(n_obs: int = 300) -> pd.DataFrame:
     data[config.TARGET_VAR] = pib_base
 
     # Gera variáveis exógenas correlacionadas
-    for i, var_name in enumerate(config.EXOG_VARS):
+    for i in range(n_exog):
+        var_name = f'exog_var_{i+1:03d}'
+
         # Cada variável tem correlação diferente com PIB
         correlation = np.random.uniform(0.3, 0.9) if i < 30 else np.random.uniform(0.1, 0.5)
 
@@ -753,7 +767,6 @@ def main():
     print("="*80)
     print(f"Data: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Target: {config.TARGET_VAR}")
-    print(f"Exógenas: {len(config.EXOG_VARS)} variáveis")
     print(f"Modelos: 11 (ARIMA, AutoARIMA, SARIMA, SARIMAX, VAR, Prophet,")
     print(f"         XGBoost, LSTM, CatBoost, LightGBM, Ensemble)")
     print("="*80)
@@ -770,6 +783,9 @@ def main():
     data = generate_synthetic_pib_data(n_obs=300)
     print(f"  ✓ Shape: {data.shape}")
     print(f"  ✓ Período: {data.index[0].strftime('%Y-%m')} a {data.index[-1].strftime('%Y-%m')}")
+
+    # Detecta variáveis exógenas automaticamente
+    config.EXOG_VARS = detect_exogenous_variables(data, config.TARGET_VAR)
 
     # ========================================================================
     # ETAPA 2: Divisão dos dados
